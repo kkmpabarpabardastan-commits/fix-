@@ -3,7 +3,7 @@ import {
   TrendingUp, TrendingDown, Wallet, ArrowDownCircle,
   ArrowUpCircle, Coins, Package, Receipt,
   Lock, Unlock, Eye, EyeOff, KeyRound, Check, AlertCircle,
-  LayoutDashboard, Store, Users,
+  LayoutDashboard, Store, Users, MessageCircle, Save,
 } from 'lucide-react';
 import { supabase, type Transaction } from '@/lib/supabase';
 import { formatRupiah } from '@/lib/format';
@@ -29,6 +29,12 @@ export function AdministrasiPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changeMsg, setChangeMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // WhatsApp number state
+  const [waNumber, setWaNumber] = useState('');
+  const [waInput, setWaInput] = useState('');
+  const [waMsg, setWaMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [waSaving, setWaSaving] = useState(false);
+
   // Admin tab state
   const [adminTab, setAdminTab] = useState<'keuangan' | 'katalog' | 'pemasok' | 'anggota' | 'transaksi'>('keuangan');
 
@@ -42,12 +48,21 @@ export function AdministrasiPage() {
           .order('created_at', { ascending: false });
         setTransactions(data ?? []);
 
-        const { data: settingsData } = await supabase
+        const { data: pwData } = await supabase
           .from('settings')
           .select('value')
           .eq('key', 'admin_password')
           .maybeSingle();
-        setStoredPassword(settingsData?.value ?? 'kdmp2024');
+        setStoredPassword(pwData?.value ?? 'kdmp2024');
+
+        const { data: waData } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'whatsapp_number')
+          .maybeSingle();
+        const waVal = waData?.value ?? '';
+        setWaNumber(waVal);
+        setWaInput(waVal);
       } catch {
         // Supabase not configured or unreachable
       }
@@ -70,6 +85,36 @@ export function AdministrasiPage() {
     setUnlocked(false);
     setShowChangeForm(false);
     setChangeMsg(null);
+    setWaMsg(null);
+  };
+
+  const handleSaveWa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWaMsg(null);
+    const cleaned = waInput.replace(/[^0-9]/g, '');
+    if (!cleaned) {
+      setWaMsg({ type: 'error', text: 'Nomor WhatsApp tidak boleh kosong.' });
+      return;
+    }
+    if (cleaned.length < 10) {
+      setWaMsg({ type: 'error', text: 'Nomor WhatsApp tidak valid. Gunakan format 62... (tanpa tanda +).' });
+      return;
+    }
+    setWaSaving(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .update({ value: cleaned, updated_at: new Date().toISOString() })
+        .eq('key', 'whatsapp_number');
+      if (error) throw error;
+      setWaNumber(cleaned);
+      setWaInput(cleaned);
+      setWaMsg({ type: 'success', text: 'Nomor WhatsApp berhasil disimpan.' });
+      setTimeout(() => setWaMsg(null), 3000);
+    } catch {
+      setWaMsg({ type: 'error', text: 'Gagal menyimpan nomor. Silakan coba lagi.' });
+    }
+    setWaSaving(false);
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -306,6 +351,45 @@ export function AdministrasiPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* WhatsApp Number Section */}
+          <div className="mb-8 bg-white rounded-2xl border border-gray-100 p-6 max-w-lg">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-2">
+              <MessageCircle className="w-5 h-5 text-emerald-600" />
+              Nomor WhatsApp Pesanan
+            </h3>
+            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+              Nomor ini menerima pesanan otomatis dari keranjang katalog. Format internasional tanpa tanda +, contoh: 6281234567890.
+            </p>
+            {waMsg && (
+              <div className={`mb-3 flex items-center gap-2 p-3 rounded-xl text-sm ${
+                waMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+              }`}>
+                {waMsg.type === 'success' ? <Check className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
+                {waMsg.text}
+              </div>
+            )}
+            <form onSubmit={handleSaveWa} className="flex gap-2">
+              <input
+                type="text"
+                value={waInput}
+                onChange={(e) => setWaInput(e.target.value)}
+                placeholder="6281234567890"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+              />
+              <button
+                type="submit"
+                disabled={waSaving}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white text-sm font-medium hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 transition-all"
+              >
+                <Save className="w-4 h-4" />
+                {waSaving ? 'Menyimpan...' : 'Simpan'}
+              </button>
+            </form>
+            {waNumber && (
+              <p className="text-xs text-gray-400 mt-2">Nomor aktif: {waNumber}</p>
+            )}
           </div>
 
           {/* Change Password Section */}
