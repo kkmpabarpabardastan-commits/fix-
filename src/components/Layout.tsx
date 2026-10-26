@@ -123,12 +123,12 @@ export function Footer({ onNavigate }: { onNavigate: (page: PageId) => void }) {
               <div>
                 <span className="block text-sm font-bold text-white">KDMP</span>
                 <span className="block text-[10px] text-gray-500">
-                  Koperasi Desa/Kelurahan Merah Putih
+                 Koperasi Kelurahan Merah Putih
                 </span>
               </div>
             </div>
             <p className="text-sm leading-relaxed max-w-md">
-              Koperasi Desa/Kelurahan Merah Putih berkomitmen melayani
+              Koperasi Kelurahan Merah Putih berkomitmen melayani
               masyarakat desa dengan menyediakan kebutuhan pokok, layanan
               simpan pinjam, dan perdagangan dengan harga terjangkau untuk
       kesejahteraan bersama.
