@@ -165,7 +165,7 @@ export function Footer({ onNavigate }: { onNavigate: (page: PageId) => void }) {
 
         <div className="border-t border-gray-800 mt-8 pt-6 text-center text-xs">
           <p>
-            © {new Date().getFullYear()} Koperasi Desa/Kelurahan Merah Putih.
+            © {new Date().getFullYear()} Koperasi Kelurahan Merah Putih.
           
           </p>
         </div>
