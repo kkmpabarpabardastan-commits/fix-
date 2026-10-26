@@ -53,10 +53,10 @@ export function Navbar({
             </div>
             <div className="text-left">
               <span className="block text-sm font-bold text-gray-900 leading-tight">
-                KDMP
+                KKMP
               </span>
               <span className="block text-[10px] text-gray-500 leading-tight">
-                Koperasi Desa Merah Putih
+                Koperasi Kelurahan Merah Putih
               </span>
             </div>
           </button>
@@ -121,7 +121,7 @@ export function Footer({ onNavigate }: { onNavigate: (page: PageId) => void }) {
                 <Store className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="block text-sm font-bold text-white">KDMP</span>
+                <span className="block text-sm font-bold text-white">KKMP</span>
                 <span className="block text-[10px] text-gray-500">
                  Koperasi Kelurahan Merah Putih
                 </span>
